@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingredient Check</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .file-input {
+      margin-bottom: 20px;
+    }
+    .result {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <iframe height="430" width="350" src="https://bot.dialogflow.com/fab03be4-88e2-41c7-b15f-840d2ccd32dc"></iframe>
+        
+      </div>
+      <div class="col-md-6">
+        <div class="title">Meal Check</div>
+        <input type="file" id="imageFile" accept="image/*" class="file-input">
+        <button id="submit" class="btn btn-primary">Submit</button>
+        <div id="result" class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const submitButton = document.getElementById('submit');
+    const resultDiv = document.getElementById('result');
+
+    submitButton.addEventListener('click', async () => {
+      const fileInput = document.getElementById('imageFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        resultDiv.textContent = 'No image selected';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('/classify-image', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultDiv.textContent = `Category: ${data.category}, Probability: ${data.probability}`;
+        } else {
+          resultDiv.textContent = `Error: ${data.message}`;
+        }
+      } catch (error) {
+        console.error(error);
+        resultDiv.textContent = 'An error occurred';
+      }
+    });
+  </script>
+</body>
+</html>
